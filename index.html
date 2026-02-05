@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TXT文件整理工具（多文件合并版）</title>
+    <title>AdGuard DNS规则整理工具（精细化分类版）</title>
     <style>
         * {
             box-sizing: border-box;
@@ -113,6 +113,84 @@
         .option-group input[type="checkbox"] {
             width: 18px;
             height: 18px;
+        }
+        
+        /* 分类配置样式 - 适配多级分类 */
+        .category-config {
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #e3e8ee;
+        }
+        
+        .category-config h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+        
+        .category-config .tips {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 10px;
+            padding: 8px;
+            background-color: #e8f4fd;
+            border-radius: 4px;
+        }
+        
+        /* 多级分类分组样式 */
+        .category-group {
+            margin: 15px 0;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 6px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .category-group h4 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .category-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .category-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            border: 1px solid #eee;
+        }
+        
+        .category-item input {
+            flex: 1;
+            padding: 5px;
+            border: 1px solid #eee;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .add-category-btn {
+            background-color: #27ae60;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-top: 10px;
         }
         
         .progress-container {
@@ -249,6 +327,27 @@
             background-color: #f8f9fa;
         }
         
+        /* 分类标题样式 */
+        .category-title {
+            color: #e74c3c;
+            font-weight: bold;
+            margin: 10px 0 5px 0;
+            font-size: 1rem;
+        }
+        
+        /* 不同类型规则高亮样式 */
+        .rule-ad { color: #e67e22; }          /* 广告相关 */
+        .rule-tracking { color: #9b59b6; }    /* 跟踪相关 */
+        .rule-social { color: #3498db; }      /* 社交相关 */
+        .rule-security { color: #e74c3c; }    /* 安全防护 */
+        .rule-content { color: #8e44ad; }     /* 内容过滤 */
+        .rule-privacy { color: #16a085; }     /* 隐私保护 */
+        .rule-media { color: #f39c12; }       /* 媒体内容 */
+        .rule-info { color: #27ae60; }        /* 信息获取 */
+        .rule-system { color: #7f8c8d; }      /* 系统相关 */
+        .rule-region { color: #d35400; }      /* 地区特定 */
+        .rule-general { color: #2c3e50; }     /* 通用规则 */
+        
         .highlight {
             background-color: #fffacd;
             padding: 2px 0;
@@ -283,6 +382,10 @@
                 grid-template-columns: 1fr;
             }
             
+            .category-list {
+                grid-template-columns: 1fr;
+            }
+            
             .stats {
                 flex-direction: column;
             }
@@ -297,8 +400,8 @@
 <body>
     <div class="container">
         <header>
-            <h1>TXT文件整理工具（多文件合并版）</h1>
-            <p class="subtitle">上传多个TXT文件，自动合并整理、去除重复行，并提供多种处理选项</p>
+            <h1>AdGuard DNS规则整理工具（精细化分类版）</h1>
+            <p class="subtitle">基于广告/社交/安全/隐私等十大类细分，自动合并、去重、分类AdGuard DNS规则</p>
         </header>
         
         <div class="toolbar">
@@ -307,46 +410,267 @@
             <div class="file-upload">
                 <label for="fileInput">
                     <span style="font-size: 3rem; display: block; margin-bottom: 10px;">📄</span>
-                    点击选择多个TXT文件或拖放文件到此处
+                    点击选择多个TXT/规则文件或拖放文件到此处
                     <br>
-                    <span style="font-size: 0.9rem; color: #7f8c8d;">支持多文件合并、大文件处理</span>
+                    <span style="font-size: 0.9rem; color: #7f8c8d;">支持AdGuard DNS规则、多文件合并、精细化分类、大文件处理</span>
                 </label>
-                <input type="file" id="fileInput" accept=".txt" multiple>
-                <!-- 新增：显示选中的文件列表 -->
+                <input type="file" id="fileInput" accept=".txt,.filter,.rules" multiple>
                 <div class="file-list" id="fileList">未选择文件</div>
             </div>
             
             <div class="options">
                 <div class="option-group">
-                    <h3>处理选项</h3>
+                    <h3>基础处理选项</h3>
                     <label>
                         <input type="checkbox" id="removeDuplicates" checked>
-                        去除重复行
+                        去除重复规则行
                     </label>
                     <label>
-                        <input type="checkbox" id="removeComments">
-                        去除以!和#开头的行
+                        <input type="checkbox" id="removeComments" checked>
+                        去除!开头的注释行
                     </label>
                     <label>
                         <input type="checkbox" id="sortLines">
-                        按照A-Z进行排序
+                        按域名排序规则
+                    </label>
+                    <label>
+                        <input type="checkbox" id="enableCategory" checked>
+                        启用精细化自动分类
                     </label>
                 </div>
                 
                 <div class="option-group">
-                    <h3>其他选项</h3>
+                    <h3>AdGuard专属选项</h3>
                     <label>
-                        <input type="checkbox" id="trimLines">
-                        去除每行首尾空格
+                        <input type="checkbox" id="trimLines" checked>
+                        去除规则首尾空格/换行
                     </label>
                     <label>
-                        <input type="checkbox" id="removeEmptyLines">
+                        <input type="checkbox" id="removeEmptyLines" checked>
                         去除空行
                     </label>
                     <label>
-                        <input type="checkbox" id="caseSensitive" checked>
-                        保留原始大小写
+                        <input type="checkbox" id="keepRuleSyntax" checked>
+                        保留AdGuard规则语法（|| ^ $等）
                     </label>
+                    <label>
+                        <input type="checkbox" id="sortByCategory">
+                        按分类名称排序
+                    </label>
+                </div>
+            </div>
+            
+            <!-- 精细化分类配置区域 -->
+            <div class="category-config">
+                <h3>AdGuard规则精细化分类配置（十大类）</h3>
+                <div class="tips">
+                    📌 适配AdGuard规则格式：||domain^、@@白名单、$修饰符等<br>
+                    📌 关键词匹配优先级：语法特征 > 域名关键词 > 规则内容<br>
+                    📌 分类体系：广告与跟踪 → 社交媒体 → 安全防护 → 内容过滤 → 隐私保护 → 媒体内容 → 信息获取 → 系统相关 → 地区特定 → 通用
+                </div>
+                
+                <!-- 1. 广告与跟踪分类组 -->
+                <div class="category-group">
+                    <h4>📢 广告与跟踪</h4>
+                    <div class="category-list" id="categoryListAd">
+                        <div class="category-item">
+                            <span>🚫</span>
+                            <input type="text" value="广告拦截" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value="ad,ads,advert,广告,推广,横幅,弹窗,$adblock,$advertising" placeholder="关键词" class="category-keys">
+                        </div>
+                        <div class="category-item">
+                            <span>🕵️</span>
+                            <input type="text" value="跟踪保护" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value="tracker,tracking,跟踪,监控,analytics,统计,$tracker,$analytics" placeholder="关键词" class="category-keys">
+                        </div>
+                        <div class="category-item">
+                            <span>🪟</span>
+                            <input type="text" value="弹窗广告" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value="popup,pop-up,弹窗,悬浮窗,弹窗广告,$popup" placeholder="关键词" class="category-keys">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 2. 社交媒体分类组 -->
+                <div class="category-group">
+                    <h4>👥 社交媒体</h4>
+                    <div class="category-list" id="categoryListSocial">
+                        <div class="category-item">
+                            <span>📱</span>
+                            <input type="text" value="社交媒体" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value="wechat,微信,qq,微博,facebook,twitter,instagram,抖音,快手,$social" placeholder="关键词" class="category-keys">
+                        </div>
+                        <div class="category-item">
+                            <span>🔌</span>
+                            <input type="text" value="社交插件" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value="social,plugin,插件,分享,评论,社交组件,$socialplugin" placeholder="关键词" class="category-keys">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 3. 安全防护分类组 -->
+                <div class="category-group">
+                    <h4>🛡️ 安全防护</h4>
+                    <div class="category-list" id="categoryListSecurity">
+                        <div class="category-item">
+                            <span>🦠</span>
+                            <input type="text" value="恶意软件" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value="malware,病毒,恶意软件,木马,$malware,$virus" placeholder="关键词" class="category-keys">
+                        </div>
+                        <div class="category-item">
+                            <span>🎣</span>
+                            <input type="text" value="钓鱼网站" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value="phishing,钓鱼,仿冒,欺诈,$phishing,$fraud" placeholder="关键词" class="category-keys">
+                        </div>
+                        <div class="category-item">
+                            <span>⛏️</span>
+                            <input type="text" value="挖矿脚本" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value="mining,挖矿,加密货币,比特币,ethereum,$mining,$crypto" placeholder="关键词" class="category-keys">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 4. 内容过滤分类组 -->
+                <div class="category-group">
+                    <h4>🔞 内容过滤</h4>
+                    <div class="category-list" id="categoryListContent">
+                        <div class="category-item">
+                            <span>🔞</span>
+                            <input type="text" value="成人内容" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value="adult,porn,色情,成人,18+,xxx,$adult,$porn" placeholder="关键词" class="category-keys">
+                        </div>
+                        <div class="category-item">
+                            <span>🎰</span>
+                            <input type="text" value="赌博网站" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value="gambling,赌博,彩票,博彩,赌场,$gambling,$lottery" placeholder="关键词" class="category-keys">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 5. 隐私保护分类组 -->
+                <div class="category-group">
+                    <h4>🔒 隐私保护</h4>
+                    <div class="category-list" id="categoryListPrivacy">
+                        <div class="category-item">
+                            <span>📊</span>
+                            <input type="text" value="数据收集" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value="data,collect,收集,数据,隐私,$privacy,$datacollect" placeholder="关键词" class="category-keys">
+                        </div>
+                        <div class="category-item">
+                            <span>🖐️</span>
+                            <input type="text" value="指纹追踪" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value="fingerprint,指纹,设备指纹,追踪,$fingerprint,$deviceid" placeholder="关键词" class="category-keys">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 6. 媒体内容分类组 -->
+                <div class="category-group">
+                    <h4>🎬 媒体内容</h4>
+                    <div class="category-list" id="categoryListMedia">
+                        <div class="category-item">
+                            <span>📺</span>
+                            <input type="text" value="视频广告" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value="video ad,视频广告,贴片广告,前置广告,$videoad" placeholder="关键词" class="category-keys">
+                        </div>
+                        <div class="category-item">
+                            <span>🎥</span>
+                            <input type="text" value="流媒体" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value="stream,流媒体,视频,音频,youtube,抖音,快手,$stream,$video" placeholder="关键词" class="category-keys">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 7. 信息获取分类组 -->
+                <div class="category-group">
+                    <h4>🔍 信息获取</h4>
+                    <div class="category-list" id="categoryListInfo">
+                        <div class="category-item">
+                            <span>🔎</span>
+                            <input type="text" value="搜索引擎" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value="search,baidu,百度,google,谷歌,bing,搜索,$search" placeholder="关键词" class="category-keys">
+                        </div>
+                        <div class="category-item">
+                            <span>📰</span>
+                            <input type="text" value="新闻媒体" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value="news,新闻,媒体,资讯,头条,$news,$media" placeholder="关键词" class="category-keys">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 8. 系统相关分类组 -->
+                <div class="category-group">
+                    <h4>🖥️ 系统相关</h4>
+                    <div class="category-list" id="categoryListSystem">
+                        <div class="category-item">
+                            <span>🔄</span>
+                            <input type="text" value="系统更新" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value="update,升级,更新,系统更新,$update,$upgrade" placeholder="关键词" class="category-keys">
+                        </div>
+                        <div class="category-item">
+                            <span>📡</span>
+                            <input type="text" value="遥测数据" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value="telemetry,遥测,数据上报,诊断,$telemetry,$diagnostic" placeholder="关键词" class="category-keys">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 9. 地区特定分类组 -->
+                <div class="category-group">
+                    <h4>🌍 地区特定</h4>
+                    <div class="category-list" id="categoryListRegion">
+                        <div class="category-item">
+                            <span>🇨🇳</span>
+                            <input type="text" value="中国网站" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value=".cn,中国,大陆,香港,台湾,百度,腾讯,阿里,$cn,$china" placeholder="关键词" class="category-keys">
+                        </div>
+                        <div class="category-item">
+                            <span>🇷🇺</span>
+                            <input type="text" value="俄罗斯网站" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value=".ru,俄罗斯,俄文,russia,$ru,$russian" placeholder="关键词" class="category-keys">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 10. 通用分类组 -->
+                <div class="category-group">
+                    <h4>🔧 通用</h4>
+                    <div class="category-list" id="categoryListGeneral">
+                        <div class="category-item">
+                            <span>🔧</span>
+                            <input type="text" value="通用规则" placeholder="分类名称" class="category-name">
+                            <span>|</span>
+                            <input type="text" value="general,通用,基础,默认,$general,$basic" placeholder="关键词" class="category-keys">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- 自定义分类按钮 -->
+                <button class="add-category-btn" id="addCategoryBtn">+ 添加自定义规则分类</button>
+                <!-- 自定义分类容器 -->
+                <div class="category-group" style="margin-top: 15px;">
+                    <h4>✏️ 自定义分类</h4>
+                    <div class="category-list" id="categoryListCustom"></div>
                 </div>
             </div>
             
@@ -355,35 +679,35 @@
             </div>
             
             <div style="display: flex; gap: 10px;">
-                <button class="btn" id="processBtn" disabled>开始处理文件</button>
+                <button class="btn" id="processBtn" disabled>开始处理规则文件</button>
                 <button class="btn" id="resetBtn">重置</button>
-                <button class="btn" id="downloadBtn" disabled>下载处理结果</button>
+                <button class="btn" id="downloadBtn" disabled>下载分类后规则</button>
             </div>
             
             <div class="stats">
                 <div class="stat-item">
                     <div class="stat-number" id="totalLines">0</div>
-                    <div class="stat-label">合并后总行数</div>
+                    <div class="stat-label">合并后总规则数</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-number" id="processedLines">0</div>
-                    <div class="stat-label">处理后行数</div>
+                    <div class="stat-label">处理后规则数</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-number" id="removedLines">0</div>
-                    <div class="stat-label">删除行数</div>
+                    <div class="stat-label">删除行数（注释/空行）</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-number" id="uniqueLines">0</div>
-                    <div class="stat-label">唯一行数</div>
+                    <div class="stat-number" id="categoryCount">0</div>
+                    <div class="stat-label">规则分类数量</div>
                 </div>
             </div>
             
             <div class="search-container">
-                <input type="text" id="searchInput" class="search-input" placeholder="输入要搜索的内容...">
+                <input type="text" id="searchInput" class="search-input" placeholder="搜索规则（支持域名/关键词）...">
                 <select id="searchType" class="search-type">
-                    <option value="fuzzy">模糊搜索</option>
-                    <option value="exact">精确搜索</option>
+                    <option value="fuzzy">模糊搜索（域名/内容）</option>
+                    <option value="exact">精确匹配规则</option>
                 </select>
                 <button class="btn" id="searchBtn">搜索</button>
                 <button class="btn" id="clearSearchBtn">清除搜索</button>
@@ -393,32 +717,34 @@
         
         <div class="content-display">
             <div class="content-panel">
-                <div class="panel-header">合并后原文</div>
+                <div class="panel-header">合并后原始规则</div>
                 <div class="content-area" id="originalContent"></div>
             </div>
             
             <div class="content-panel">
-                <div class="panel-header">删除的内容</div>
+                <div class="panel-header">删除的内容（注释/重复/空行）</div>
                 <div class="content-area" id="removedContent"></div>
             </div>
             
             <div class="content-panel">
-                <div class="panel-header">处理后的内容</div>
+                <div class="panel-header">精细化分类整理后AdGuard规则</div>
                 <div class="content-area" id="processedContent"></div>
             </div>
         </div>
         
         <footer>
-            <p>TXT文件整理工具 &copy; 2023 | 完全在浏览器中运行，不上传任何数据到服务器</p>
-            <p>支持多文件合并、大文件处理，使用分块读取技术，避免内存溢出</p>
+            <p>AdGuard DNS规则整理工具（精细化分类版） &copy; 2025 | 完全在浏览器中运行，不上传任何数据到服务器</p>
+            <p>支持十大类精细化分类：广告与跟踪/社交媒体/安全防护/内容过滤/隐私保护/媒体内容/信息获取/系统相关/地区特定/通用</p>
         </footer>
     </div>
 
     <script>
         // 全局变量
-        let originalLines = [];      // 所有文件合并后的原文行
-        let processedLines = [];     // 处理后的行
-        let removedLines = [];       // 删除的行
+        let originalLines = [];      // 所有文件合并后的原始规则行
+        let processedLines = [];     // 基础处理后的规则行（去重/去注释等）
+        let categorizedLines = {};   // 分类后的规则 {分类名: [规则列表]}
+        let uncategorizedLines = []; // 未匹配到任何分类的规则
+        let removedLines = [];       // 删除的行（注释/重复/空行）
         let currentSearchMatches = [];
         let currentSearchIndex = -1;
         let selectedFiles = [];      // 选中的文件列表
@@ -434,12 +760,22 @@
         const searchBtn = document.getElementById('searchBtn');
         const clearSearchBtn = document.getElementById('clearSearchBtn');
         const searchResults = document.getElementById('searchResults');
+        const addCategoryBtn = document.getElementById('addCategoryBtn');
+        const categoryListCustom = document.getElementById('categoryListCustom');
+        
+        // 所有分类容器ID（用于批量读取分类配置）
+        const categoryContainerIds = [
+            'categoryListAd', 'categoryListSocial', 'categoryListSecurity',
+            'categoryListContent', 'categoryListPrivacy', 'categoryListMedia',
+            'categoryListInfo', 'categoryListSystem', 'categoryListRegion',
+            'categoryListGeneral', 'categoryListCustom'
+        ];
         
         // 统计元素
         const totalLinesEl = document.getElementById('totalLines');
         const processedLinesEl = document.getElementById('processedLines');
         const removedLinesEl = document.getElementById('removedLines');
-        const uniqueLinesEl = document.getElementById('uniqueLines');
+        const categoryCountEl = document.getElementById('categoryCount');
         
         // 内容显示元素
         const originalContentEl = document.getElementById('originalContent');
@@ -457,21 +793,23 @@
             e.stopPropagation();
             
             const files = Array.from(e.dataTransfer.files).filter(file => 
-                file.type === 'text/plain' || file.name.toLowerCase().endsWith('.txt')
+                ['text/plain', 'application/octet-stream'].includes(file.type) || 
+                ['.txt', '.filter', '.rules'].includes(file.name.toLowerCase().slice(-4))
             );
             
             if (files.length > 0) {
                 fileInput.files = e.dataTransfer.files;
                 handleFileSelect(files);
             } else {
-                alert('请选择TXT文件');
+                alert('请选择AdGuard规则文件（支持.txt/.filter/.rules格式）');
             }
         });
         
-        // 文件选择事件（适配多文件）
+        // 文件选择事件
         fileInput.addEventListener('change', (e) => {
             const files = Array.from(e.target.files).filter(file => 
-                file.type === 'text/plain' || file.name.toLowerCase().endsWith('.txt')
+                ['text/plain', 'application/octet-stream'].includes(file.type) || 
+                ['.txt', '.filter', '.rules'].includes(file.name.toLowerCase().slice(-4))
             );
             
             if (files.length > 0) {
@@ -479,34 +817,47 @@
             } else {
                 fileList.textContent = '未选择文件';
                 processBtn.disabled = true;
-                processBtn.textContent = '开始处理文件';
+                processBtn.textContent = '开始处理规则文件';
             }
         });
         
-        // 处理文件选择（多文件版）
+        // 添加自定义分类行
+        addCategoryBtn.addEventListener('click', () => {
+            const newItem = document.createElement('div');
+            newItem.className = 'category-item';
+            newItem.innerHTML = `
+                <span>📝</span>
+                <input type="text" placeholder="自定义分类名称" class="category-name">
+                <span>|</span>
+                <input type="text" placeholder="匹配关键词（逗号分隔）" class="category-keys">
+            `;
+            categoryListCustom.appendChild(newItem);
+        });
+        
+        // 处理文件选择
         function handleFileSelect(files) {
             if (!files || files.length === 0) return;
             
             selectedFiles = files;
             
             // 更新文件列表显示
-            let fileListHtml = `已选择 ${files.length} 个TXT文件：<br>`;
+            let fileListHtml = `已选择 ${files.length} 个规则文件：<br>`;
             files.forEach((file, index) => {
-                const fileSize = (file.size / 1024 / 1024).toFixed(2);
-                fileListHtml += `${index + 1}. ${file.name} (${fileSize} MB)<br>`;
+                const fileSize = (file.size / 1024).toFixed(2);
+                fileListHtml += `${index + 1}. ${file.name} (${fileSize} KB)<br>`;
             });
             fileList.innerHTML = fileListHtml;
             
             // 更新按钮状态
             processBtn.disabled = false;
-            processBtn.textContent = `处理 ${files.length} 个文件`;
+            processBtn.textContent = `处理 ${files.length} 个规则文件`;
             
             // 提示信息
-            const totalSize = (files.reduce((sum, file) => sum + file.size, 0) / 1024 / 1024).toFixed(2);
-            alert(`已选择 ${files.length} 个TXT文件，总大小：${totalSize} MB\n请点击"开始处理文件"按钮开始合并整理。`);
+            const totalSize = (files.reduce((sum, file) => sum + file.size, 0) / 1024).toFixed(2);
+            alert(`已选择 ${files.length} 个AdGuard规则文件，总大小：${totalSize} KB\n将按十大类精细化分类整理，请点击"开始处理规则文件"按钮。`);
         }
         
-        // 处理按钮事件（多文件合并版）
+        // 处理按钮事件（精细化分类版）
         processBtn.addEventListener('click', async () => {
             if (selectedFiles.length === 0) return;
             
@@ -517,8 +868,8 @@
             try {
                 await processMultipleFiles(selectedFiles);
             } catch (error) {
-                console.error('处理文件时出错:', error);
-                alert('处理文件时出错: ' + error.message);
+                console.error('处理规则文件时出错:', error);
+                alert('处理规则文件时出错: ' + error.message);
                 processBtn.disabled = false;
             }
         });
@@ -528,7 +879,7 @@
             fileInput.value = '';
             fileList.textContent = '未选择文件';
             processBtn.disabled = true;
-            processBtn.textContent = '开始处理文件';
+            processBtn.textContent = '开始处理规则文件';
             downloadBtn.disabled = true;
             selectedFiles = [];
             
@@ -543,7 +894,7 @@
             totalLinesEl.textContent = '0';
             processedLinesEl.textContent = '0';
             removedLinesEl.textContent = '0';
-            uniqueLinesEl.textContent = '0';
+            categoryCountEl.textContent = '0';
             
             searchInput.value = '';
             searchResults.textContent = '';
@@ -551,30 +902,90 @@
             // 重置数据
             originalLines = [];
             processedLines = [];
+            categorizedLines = {};
+            uncategorizedLines = [];
             removedLines = [];
             currentSearchMatches = [];
             currentSearchIndex = -1;
             
-            // 重置复选框
+            // 重置复选框（适配AdGuard默认配置）
             document.getElementById('removeDuplicates').checked = true;
-            document.getElementById('removeComments').checked = false;
+            document.getElementById('removeComments').checked = true;
             document.getElementById('sortLines').checked = false;
-            document.getElementById('trimLines').checked = false;
-            document.getElementById('removeEmptyLines').checked = false;
-            document.getElementById('caseSensitive').checked = true;
+            document.getElementById('enableCategory').checked = true;
+            document.getElementById('trimLines').checked = true;
+            document.getElementById('removeEmptyLines').checked = true;
+            document.getElementById('keepRuleSyntax').checked = true;
+            document.getElementById('sortByCategory').checked = false;
+            
+            // 清空自定义分类
+            categoryListCustom.innerHTML = '';
         });
         
-        // 下载按钮事件
+        // 下载按钮事件（精细化分类版）
         downloadBtn.addEventListener('click', () => {
-            if (processedLines.length === 0) return;
+            if (Object.keys(categorizedLines).length === 0 && uncategorizedLines.length === 0) return;
             
-            const content = processedLines.join('\n');
-            const blob = new Blob([content], { type: 'text/plain' });
+            // 构建分类后的AdGuard规则内容（保留#分类标题，符合AdGuard注释规范）
+            let content = `! AdGuard DNS规则精细化分类结果 - ${new Date().toLocaleString()}\n`;
+            content += `! 总规则数：${processedLines.length} | 分类数：${Object.keys(categorizedLines).length}\n`;
+            content += `! 分类体系：广告与跟踪 → 社交媒体 → 安全防护 → 内容过滤 → 隐私保护 → 媒体内容 → 信息获取 → 系统相关 → 地区特定 → 通用\n\n`;
+            
+            const sortByCategory = document.getElementById('sortByCategory').checked;
+            // 定义分类显示顺序（按十大类优先级）
+            const categoryDisplayOrder = [
+                '广告拦截', '跟踪保护', '弹窗广告',
+                '社交媒体', '社交插件',
+                '恶意软件', '钓鱼网站', '挖矿脚本',
+                '成人内容', '赌博网站',
+                '数据收集', '指纹追踪',
+                '视频广告', '流媒体',
+                '搜索引擎', '新闻媒体',
+                '系统更新', '遥测数据',
+                '中国网站', '俄罗斯网站',
+                '通用规则'
+            ];
+            
+            // 先按预设顺序显示分类
+            categoryDisplayOrder.forEach(category => {
+                if (categorizedLines[category] && categorizedLines[category].length > 0) {
+                    content += `! ==============================================\n`;
+                    content += `#${category}\n`;
+                    content += `! ==============================================\n`;
+                    content += categorizedLines[category].join('\n');
+                    content += '\n\n';
+                }
+            });
+            
+            // 显示自定义分类
+            Object.keys(categorizedLines).forEach(category => {
+                if (!categoryDisplayOrder.includes(category) && categorizedLines[category].length > 0) {
+                    content += `! ==============================================\n`;
+                    content += `#${category}\n`;
+                    content += `! ==============================================\n`;
+                    content += categorizedLines[category].join('\n');
+                    content += '\n\n';
+                }
+            });
+            
+            // 添加未分类规则
+            if (uncategorizedLines.length > 0) {
+                content += `! ==============================================\n`;
+                content += `#未分类规则\n`;
+                content += `! ==============================================\n`;
+                content += uncategorizedLines.join('\n');
+                content += '\n';
+            }
+            
+            // 生成Blob（UTF-8编码，适配AdGuard）
+            const blob = new Blob([content], { 
+                type: 'text/plain; charset=utf-8' 
+            });
             const url = URL.createObjectURL(blob);
             
             const a = document.createElement('a');
             a.href = url;
-            a.download = `merged_processed_${new Date().getTime()}.txt`;
+            a.download = `AdGuard_Rules_Categorized_${new Date().getTime()}.txt`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -599,130 +1010,372 @@
             }
         });
         
-        // 处理多个文件（核心：多文件合并逻辑）
+        // 处理多个AdGuard规则文件（核心逻辑）
         async function processMultipleFiles(files) {
             originalLines = [];
             const totalFiles = files.length;
             
-            // 第一步：读取并合并所有文件内容
+            // 第一步：读取并合并所有规则文件（占总进度50%）
             for (let i = 0; i < totalFiles; i++) {
                 const file = files[i];
                 const fileContent = await readFileAsText(file);
                 
-                // 按行分割并合并到原始行数组
-                const fileLines = fileContent.split('\n');
+                // 按行分割（兼容Windows/Mac换行符）
+                const fileLines = fileContent.split(/\r?\n/);
                 originalLines = originalLines.concat(fileLines);
                 
-                // 更新读取进度（占总进度的60%）
-                const readProgress = (i + 1) / totalFiles * 60;
+                // 更新读取进度
+                const readProgress = (i + 1) / totalFiles * 50;
                 progressBar.style.width = `${readProgress}%`;
                 progressBar.textContent = `${Math.round(readProgress)}%`;
             }
             
             // 显示合并后的原文
-            displayContent(originalContentEl, originalLines);
+            displayContent(originalContentEl, originalLines, false);
             totalLinesEl.textContent = originalLines.length;
             
-            // 第二步：处理行数据（占总进度的40%）
+            // 第二步：AdGuard规则基础处理（去重/去注释等，占35%进度）
             setTimeout(() => {
-                processLines();
-                // 完成进度
-                progressBar.style.width = '100%';
-                progressBar.textContent = '100%';
+                processAdGuardRules();
+                
+                // 第三步：精细化自动分类处理（占15%进度）
+                setTimeout(() => {
+                    categorizeAdGuardRules();
+                    // 完成进度
+                    progressBar.style.width = '100%';
+                    progressBar.textContent = '100%';
+                    
+                    // 显示分类后的规则
+                    displayCategorizedContent();
+                    
+                    // 更新统计
+                    processedLinesEl.textContent = processedLines.length;
+                    removedLinesEl.textContent = removedLines.length;
+                    categoryCountEl.textContent = Object.keys(categorizedLines).length + (uncategorizedLines.length > 0 ? 1 : 0);
+                    
+                    // 启用下载按钮
+                    downloadBtn.disabled = false;
+                    processBtn.disabled = false;
+                    processBtn.textContent = `重新处理 ${selectedFiles.length} 个规则文件`;
+                }, 100);
             }, 100);
         }
         
-        // 异步读取单个文件
+        // 异步读取单个文件（适配大规则文件）
         function readFileAsText(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
                 reader.onload = (e) => resolve(e.target.result);
-                reader.onerror = () => reject(new Error(`读取文件 ${file.name} 失败`));
-                reader.readAsText(file, 'utf-8'); // 指定UTF-8编码，兼容更多文件
+                reader.onerror = () => reject(new Error(`读取规则文件 ${file.name} 失败`));
+                reader.readAsText(file, 'utf-8'); // 强制UTF-8，适配AdGuard规则
             });
         }
         
-        // 处理行数据（保留原逻辑，适配合并后的总行数）
-        function processLines() {
-            // 获取选项
+        // AdGuard规则基础处理（核心适配逻辑）
+        function processAdGuardRules() {
+            // 获取AdGuard专用选项
             const removeDuplicates = document.getElementById('removeDuplicates').checked;
             const removeComments = document.getElementById('removeComments').checked;
-            const sortLines = document.getElementById('sortLines').checked;
             const trimLines = document.getElementById('trimLines').checked;
             const removeEmptyLines = document.getElementById('removeEmptyLines').checked;
-            const caseSensitive = document.getElementById('caseSensitive').checked;
+            const keepRuleSyntax = document.getElementById('keepRuleSyntax').checked;
+            const sortLines = document.getElementById('sortLines').checked;
             
             // 初始化变量
             const uniqueSet = new Set();
             processedLines = [];
             removedLines = [];
             
-            // 处理每一行
+            // 处理每一行规则
             originalLines.forEach((line, index) => {
                 // 模拟处理进度
                 if (index % 100 === 0) {
-                    const processProgress = 60 + (index / originalLines.length * 35);
+                    const processProgress = 50 + (index / originalLines.length * 35);
                     progressBar.style.width = `${processProgress}%`;
                     progressBar.textContent = `${Math.round(processProgress)}%`;
                 }
                 
                 let processedLine = line;
                 
-                // 去除首尾空格
+                // 1. 去除首尾空格（保留规则内的必要空格）
                 if (trimLines) {
                     processedLine = processedLine.trim();
                 }
                 
-                // 检查是否为空行
+                // 2. 过滤空行
                 if (removeEmptyLines && processedLine === '') {
                     removedLines.push(line);
                     return;
                 }
                 
-                // 检查是否以!或#开头
-                if (removeComments && (processedLine.startsWith('!') || processedLine.startsWith('#'))) {
+                // 3. 过滤!开头的注释行（AdGuard注释规范）
+                if (removeComments && processedLine.startsWith('!')) {
                     removedLines.push(line);
                     return;
                 }
                 
-                // 检查是否重复
-                const key = caseSensitive ? processedLine : processedLine.toLowerCase();
-                if (removeDuplicates && uniqueSet.has(key)) {
+                // 4. 去重处理（保留AdGuard规则语法特征）
+                const ruleKey = keepRuleSyntax ? processedLine : extractDomainFromRule(processedLine);
+                if (removeDuplicates && uniqueSet.has(ruleKey)) {
                     removedLines.push(line);
                     return;
                 }
                 
-                // 添加到处理后的行
-                uniqueSet.add(key);
-                processedLines.push(processedLine);
+                // 5. 保留有效规则
+                if (processedLine !== '') {
+                    uniqueSet.add(ruleKey);
+                    processedLines.push(processedLine);
+                }
             });
             
-            // 排序处理
+            // 6. 按域名排序规则（AdGuard规则专用排序）
             if (sortLines) {
-                if (caseSensitive) {
-                    processedLines.sort();
-                } else {
-                    processedLines.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-                }
+                processedLines.sort((a, b) => {
+                    // 提取域名进行排序，而非原始字符串
+                    const domainA = extractDomainFromRule(a).toLowerCase();
+                    const domainB = extractDomainFromRule(b).toLowerCase();
+                    return domainA.localeCompare(domainB);
+                });
             }
-            
-            // 更新UI
-            displayContent(processedContentEl, processedLines);
-            displayContent(removedContentEl, removedLines);
-            
-            // 更新统计信息
-            processedLinesEl.textContent = processedLines.length;
-            removedLinesEl.textContent = removedLines.length;
-            uniqueLinesEl.textContent = new Set(processedLines).size;
-            
-            // 启用下载按钮
-            downloadBtn.disabled = false;
-            processBtn.disabled = false;
-            processBtn.textContent = `重新处理 ${selectedFiles.length} 个文件`;
         }
         
-        // 显示内容到指定元素
-        function displayContent(element, lines) {
+        // 提取AdGuard规则中的域名（核心适配逻辑）
+        function extractDomainFromRule(rule) {
+            if (!rule || typeof rule !== 'string') return '';
+            
+            // 处理常见AdGuard规则格式：
+            // ||domain.com^ → domain.com
+            // @@||domain.com^ → domain.com
+            // domain.com$script → domain.com
+            // 1.2.3.4 → 1.2.3.4
+            let domain = rule.trim();
+            
+            // 移除白名单前缀 @@
+            domain = domain.replace(/^@@/, '');
+            // 移除 || 前缀
+            domain = domain.replace(/^\|\|/, '');
+            // 移除 ^ 后缀
+            domain = domain.replace(/\^.*$/, '');
+            // 移除 $ 修饰符部分
+            domain = domain.replace(/\$.*$/, '');
+            // 移除端口号
+            domain = domain.replace(/:\d+$/, '');
+            // 移除路径部分
+            domain = domain.replace(/\/.*$/, '');
+            
+            return domain || rule;
+        }
+        
+        // AdGuard规则精细化自动分类核心逻辑
+        function categorizeAdGuardRules() {
+            const enableCategory = document.getElementById('enableCategory').checked;
+            if (!enableCategory) {
+                categorizedLines = { "未分类规则": processedLines };
+                uncategorizedLines = [];
+                return;
+            }
+            
+            // 重置分类数据
+            categorizedLines = {};
+            uncategorizedLines = [];
+            
+            // 批量读取所有分类配置（十大类+自定义）
+            const categoryRules = [];
+            categoryContainerIds.forEach(containerId => {
+                const container = document.getElementById(containerId);
+                if (!container) return;
+                
+                const categoryItems = container.querySelectorAll('.category-item');
+                categoryItems.forEach(item => {
+                    const nameInput = item.querySelector('.category-name');
+                    const keysInput = item.querySelector('.category-keys');
+                    
+                    const categoryName = nameInput.value.trim();
+                    const keyWords = keysInput.value.trim().split(',').map(k => k.trim()).filter(k => k);
+                    
+                    if (categoryName && keyWords.length > 0) {
+                        // 构建适配AdGuard的匹配规则：支持规则语法（如@@、$adblock）和域名关键词
+                        const regexPattern = keyWords.map(key => {
+                            // 转义正则特殊字符
+                            return key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+                        }).join('|');
+                        
+                        categoryRules.push({
+                            name: categoryName,
+                            keys: keyWords,
+                            regex: new RegExp(regexPattern, 'i'), // 不区分大小写匹配
+                            type: getCategoryType(categoryName) // 标记分类类型用于高亮
+                        });
+                    }
+                });
+            });
+            
+            // 对每行规则进行精细化分类匹配
+            processedLines.forEach(rule => {
+                let matched = false;
+                
+                // 优先匹配特殊语法（白名单@@、修饰符$等）
+                // 白名单规则单独处理（避免被其他分类匹配）
+                if (rule.startsWith('@@')) {
+                    // 查找是否有白名单相关分类
+                    const whitelistRule = categoryRules.find(r => 
+                        r.name.includes('白名单') || r.keys.includes('@@') || r.keys.includes('allow')
+                    );
+                    if (whitelistRule) {
+                        if (!categorizedLines[whitelistRule.name]) {
+                            categorizedLines[whitelistRule.name] = [];
+                        }
+                        categorizedLines[whitelistRule.name].push(rule);
+                        matched = true;
+                    }
+                }
+                
+                // 未匹配到特殊语法，按关键词匹配
+                if (!matched) {
+                    // 遍历所有分类规则匹配
+                    for (const ruleItem of categoryRules) {
+                        if (ruleItem.regex.test(rule)) {
+                            if (!categorizedLines[ruleItem.name]) {
+                                categorizedLines[ruleItem.name] = [];
+                            }
+                            categorizedLines[ruleItem.name].push(rule);
+                            matched = true;
+                            break; // 匹配到第一个分类后停止（保证分类准确性）
+                        }
+                    }
+                }
+                
+                // 未匹配到任何分类
+                if (!matched) {
+                    uncategorizedLines.push(rule);
+                }
+            });
+            
+            // 按分类排序（AdGuard规则专用）
+            const sortByCategory = document.getElementById('sortByCategory').checked;
+            if (sortByCategory) {
+                // 对每个分类内的规则按域名排序
+                Object.keys(categorizedLines).forEach(category => {
+                    categorizedLines[category].sort((a, b) => {
+                        const domainA = extractDomainFromRule(a).toLowerCase();
+                        const domainB = extractDomainFromRule(b).toLowerCase();
+                        return domainA.localeCompare(domainB);
+                    });
+                });
+                // 对未分类规则排序
+                uncategorizedLines.sort((a, b) => {
+                    const domainA = extractDomainFromRule(a).toLowerCase();
+                    const domainB = extractDomainFromRule(b).toLowerCase();
+                    return domainA.localeCompare(domainB);
+                });
+            }
+        }
+        
+        // 获取分类类型（用于规则高亮）
+        function getCategoryType(categoryName) {
+            if (categoryName.includes('广告') || categoryName.includes('跟踪') || categoryName.includes('弹窗')) return 'ad/tracking';
+            if (categoryName.includes('社交')) return 'social';
+            if (categoryName.includes('恶意') || categoryName.includes('钓鱼') || categoryName.includes('挖矿')) return 'security';
+            if (categoryName.includes('成人') || categoryName.includes('赌博')) return 'content';
+            if (categoryName.includes('隐私') || categoryName.includes('数据') || categoryName.includes('指纹')) return 'privacy';
+            if (categoryName.includes('视频') || categoryName.includes('媒体') || categoryName.includes('流媒体')) return 'media';
+            if (categoryName.includes('搜索') || categoryName.includes('新闻')) return 'info';
+            if (categoryName.includes('系统') || categoryName.includes('更新') || categoryName.includes('遥测')) return 'system';
+            if (categoryName.includes('中国') || categoryName.includes('俄罗斯') || categoryName.includes('地区')) return 'region';
+            return 'general';
+        }
+        
+        // 显示精细化分类后的AdGuard规则
+        function displayCategorizedContent() {
+            processedContentEl.innerHTML = '';
+            const fragment = document.createDocumentFragment();
+            
+            // 定义分类显示顺序（按十大类优先级）
+            const categoryDisplayOrder = [
+                '广告拦截', '跟踪保护', '弹窗广告',
+                '社交媒体', '社交插件',
+                '恶意软件', '钓鱼网站', '挖矿脚本',
+                '成人内容', '赌博网站',
+                '数据收集', '指纹追踪',
+                '视频广告', '流媒体',
+                '搜索引擎', '新闻媒体',
+                '系统更新', '遥测数据',
+                '中国网站', '俄罗斯网站',
+                '通用规则'
+            ];
+            
+            // 添加预设分类内容
+            categoryDisplayOrder.forEach((category, catIndex) => {
+                const rules = categorizedLines[category];
+                if (!rules || rules.length === 0) return;
+                
+                // 添加分类标题（#开头，适配AdGuard注释）
+                const categoryTitle = document.createElement('div');
+                categoryTitle.className = 'category-title';
+                categoryTitle.textContent = `#${category} (共${rules.length}条规则)`;
+                fragment.appendChild(categoryTitle);
+                
+                // 添加分类下的规则（按类型高亮）
+                rules.forEach((rule, index) => {
+                    const ruleEl = document.createElement('div');
+                    
+                    // 根据分类类型添加样式类
+                    const categoryType = getCategoryType(category);
+                    if (categoryType === 'ad/tracking') ruleEl.className = rule.includes('跟踪') ? 'rule-tracking' : 'rule-ad';
+                    else if (categoryType === 'social') ruleEl.className = 'rule-social';
+                    else if (categoryType === 'security') ruleEl.className = 'rule-security';
+                    else if (categoryType === 'content') ruleEl.className = 'rule-content';
+                    else if (categoryType === 'privacy') ruleEl.className = 'rule-privacy';
+                    else if (categoryType === 'media') ruleEl.className = 'rule-media';
+                    else if (categoryType === 'info') ruleEl.className = 'rule-info';
+                    else if (categoryType === 'system') ruleEl.className = 'rule-system';
+                    else if (categoryType === 'region') ruleEl.className = 'rule-region';
+                    else ruleEl.className = 'rule-general';
+                    
+                    ruleEl.textContent = `${index + 1}. ${rule}`;
+                    fragment.appendChild(ruleEl);
+                });
+            });
+            
+            // 添加自定义分类内容
+            Object.keys(categorizedLines).forEach(category => {
+                if (!categoryDisplayOrder.includes(category) && categorizedLines[category].length > 0) {
+                    const categoryTitle = document.createElement('div');
+                    categoryTitle.className = 'category-title';
+                    categoryTitle.textContent = `#${category} (共${categorizedLines[category].length}条规则)`;
+                    fragment.appendChild(categoryTitle);
+                    
+                    categorizedLines[category].forEach((rule, index) => {
+                        const ruleEl = document.createElement('div');
+                        ruleEl.className = 'rule-general';
+                        ruleEl.textContent = `${index + 1}. ${rule}`;
+                        fragment.appendChild(ruleEl);
+                    });
+                }
+            });
+            
+            // 添加未分类规则
+            if (uncategorizedLines.length > 0) {
+                const uncatTitle = document.createElement('div');
+                uncatTitle.className = 'category-title';
+                uncatTitle.textContent = `#未分类规则 (共${uncategorizedLines.length}条)`;
+                fragment.appendChild(uncatTitle);
+                
+                uncategorizedLines.forEach((rule, index) => {
+                    const ruleEl = document.createElement('div');
+                    ruleEl.textContent = `${index + 1}. ${rule}`;
+                    fragment.appendChild(ruleEl);
+                });
+            }
+            
+            processedContentEl.appendChild(fragment);
+            
+            // 显示删除的内容
+            displayContent(removedContentEl, removedLines, false);
+        }
+        
+        // 通用内容显示函数（适配大规则文件）
+        function displayContent(element, lines, isCategorized = true) {
             element.innerHTML = '';
             
             if (lines.length === 0) {
@@ -730,8 +1383,8 @@
                 return;
             }
             
-            // 优化大文件渲染性能：分批添加DOM元素
-            const batchSize = 1000;
+            // 优化大规则文件渲染性能：分批添加DOM元素
+            const batchSize = 500; // AdGuard规则文件通常较大，减小批次
             let currentIndex = 0;
             
             function addBatch() {
@@ -755,7 +1408,7 @@
             addBatch();
         }
         
-        // 执行搜索
+        // 执行搜索（适配精细化分类）
         function performSearch() {
             const searchTerm = searchInput.value.trim();
             if (!searchTerm) {
@@ -769,20 +1422,25 @@
             // 清除之前的搜索高亮
             clearSearch();
             
-            // 搜索匹配的行
+            // 搜索匹配的规则
             currentSearchMatches = [];
             
-            // 遍历所有行元素
+            // 遍历所有规则元素
             const lineElements = processedContent.querySelectorAll('div');
             lineElements.forEach((lineEl, index) => {
+                // 跳过分类标题
+                if (lineEl.classList.contains('category-title')) return;
+                
                 const lineText = lineEl.textContent.substring(lineEl.textContent.indexOf('. ') + 2);
+                const domainText = extractDomainFromRule(lineText); // 提取域名用于搜索
                 
                 let isMatch = false;
                 if (searchType === 'exact') {
                     isMatch = lineText === searchTerm;
                 } else {
-                    // 模糊搜索（不区分大小写）
-                    isMatch = lineText.toLowerCase().includes(searchTerm.toLowerCase());
+                    // 模糊搜索：支持规则内容或域名匹配
+                    isMatch = lineText.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                              domainText.toLowerCase().includes(searchTerm.toLowerCase());
                 }
                 
                 if (isMatch) {
@@ -791,17 +1449,17 @@
                     // 高亮显示匹配的内容
                     const regex = new RegExp(searchTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
                     const highlightedText = lineText.replace(regex, match => `<span class="highlight">${match}</span>`);
-                    lineEl.innerHTML = `${index + 1}. ${highlightedText}`;
+                    lineEl.innerHTML = `${lineEl.textContent.substring(0, lineEl.textContent.indexOf('. ') + 2)}${highlightedText}`;
                 }
             });
             
             // 显示搜索结果
             if (currentSearchMatches.length > 0) {
-                searchResults.innerHTML = `<span class="match-count">找到 ${currentSearchMatches.length} 个匹配项</span>`;
+                searchResults.innerHTML = `<span class="match-count">找到 ${currentSearchMatches.length} 个匹配规则</span>`;
                 currentSearchIndex = 0;
                 scrollToMatch(currentSearchIndex);
             } else {
-                searchResults.textContent = '未找到匹配项';
+                searchResults.textContent = '未找到匹配规则';
             }
         }
         
@@ -811,8 +1469,14 @@
             const lineElements = processedContent.querySelectorAll('div');
             
             lineElements.forEach((lineEl, index) => {
+                if (lineEl.classList.contains('category-title')) return;
+                
                 const lineText = lineEl.textContent.substring(lineEl.textContent.indexOf('. ') + 2);
                 lineEl.innerHTML = `${index + 1}. ${lineText}`;
+                
+                // 恢复规则类型样式
+                const classList = lineEl.className;
+                if (classList) lineEl.className = classList;
             });
             
             currentSearchMatches = [];
@@ -820,7 +1484,7 @@
             searchResults.textContent = '';
         }
         
-        // 滚动到匹配项
+        // 滚动到匹配规则
         function scrollToMatch(index) {
             if (currentSearchMatches.length === 0 || index < 0 || index >= currentSearchMatches.length) return;
             
@@ -833,6 +1497,7 @@
                 
                 // 高亮当前匹配项
                 lineElements.forEach((el, i) => {
+                    if (el.classList.contains('category-title')) return;
                     el.style.backgroundColor = i === matchIndex ? '#e1f5fe' : '';
                 });
             }
@@ -840,49 +1505,71 @@
         
         // 初始化
         document.addEventListener('DOMContentLoaded', () => {
-            // 添加多文件示例按钮
+            // 添加AdGuard示例按钮
             addExampleFileOption();
         });
         
-        // 添加示例文件选项（多文件版）
+        // 添加AdGuard示例文件选项
         function addExampleFileOption() {
             const fileUploadDiv = document.querySelector('.file-upload');
             const exampleBtn = document.createElement('button');
             exampleBtn.className = 'btn';
             exampleBtn.style.marginTop = '10px';
             exampleBtn.style.backgroundColor = '#27ae60';
-            exampleBtn.textContent = '加载多文件示例进行演示';
+            exampleBtn.textContent = '加载精细化分类示例规则演示';
             exampleBtn.addEventListener('click', loadExampleFiles);
             fileUploadDiv.appendChild(exampleBtn);
         }
         
-        // 加载多文件示例
+        // 加载精细化分类示例规则文件
         function loadExampleFiles() {
-            // 示例文件1
-            const content1 = `# 文件1注释
-! 这是文件1的注释行
-文件1第一行
-文件1第二行
-重复内容
-apple
-Banana`;
+            // 包含十大类规则的示例内容
+            const content1 = `! AdGuard规则示例
+||ad.douyin.com^$adblock
+||tracker.qq.com^$tracker
+||popup.taobao.com^$popup
+||social.weibo.com^$social
+||phishing-example.com^$phishing
+||mining-crypto.com^$mining
+||adult-content.com^$adult
+||gambling-site.com^$gambling
+||data-collect.baidu.com^$privacy
+||fingerprint.aliyun.com^$fingerprint
+||video-ad.iqiyi.com^$videoad
+||stream.bilibili.com^$stream
+||search.baidu.com^$search
+||news.163.com^$news
+||update.microsoft.com^$update
+||telemetry.windows.com^$telemetry
+||example.cn^$cn
+||example.ru^$ru
+||general-rule.com^$general
+重复规则
+||ad.douyin.com^$adblock`;
             
-            // 示例文件2
-            const content2 = `# 文件2注释
-! 这是文件2的注释行
-文件2第一行
-文件2第二行
-重复内容
-orange
-Apple`;
+            const content2 = `! 补充示例规则
+||ads.kuaishou.com^
+||tracking.analytics.com^
+||social-plugin.qq.com^
+||malware-site.com^
+||adult-site.com^
+||gambling-china.com^
+||data-collect.tencent.com^
+||stream.youtube.com^
+||news.qq.com^
+||update.android.com^
+||telemetry.android.com^
+||baidu.cn^
+||yandex.ru^
+测试未分类规则`;
             
-            // 创建两个示例文件
+            // 创建示例文件
             const blob1 = new Blob([content1], { type: 'text/plain' });
             const blob2 = new Blob([content2], { type: 'text/plain' });
-            const file1 = new File([blob1], 'example1.txt', { type: 'text/plain' });
-            const file2 = new File([blob2], 'example2.txt', { type: 'text/plain' });
+            const file1 = new File([blob1], 'AdGuard_Rules_1.txt', { type: 'text/plain' });
+            const file2 = new File([blob2], 'AdGuard_Rules_2.txt', { type: 'text/plain' });
             
-            // 模拟多文件选择
+            // 模拟文件选择
             const dataTransfer = new DataTransfer();
             dataTransfer.items.add(file1);
             dataTransfer.items.add(file2);
